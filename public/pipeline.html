@@ -216,35 +216,415 @@ body::before{
 .biz-mini-l{font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px;}
 
 /* ══════════════════════════════════════════
-   FLOWCHART — COMPLETE REDESIGN
-   SVG-based proper branching flowchart
+   FLOWCHART — HTML/CSS REDESIGN v2
    ══════════════════════════════════════════ */
 
-#fc-svg-container {
+.fc-container {
   width: 100%;
-  min-width: 1300px;
-  padding: 40px 20px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+  position: relative;
+}
+
+/* Vertical spine */
+.fc-spine {
+  position: relative;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Animated vertical connector */
+.fc-line {
+  width: 3px;
+  height: 40px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.fc-line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--line-c, #a78bfa), transparent);
+  opacity: 0.4;
+}
+.fc-line::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 12px;
+  background: var(--line-c, #a78bfa);
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: flowDot 1.6s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--line-c, #a78bfa);
+}
+@keyframes flowDot {
+  0% { top: -12px; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Arrow tip */
+.fc-arrow {
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--line-c, #a78bfa);
+  margin-top: -2px;
+  filter: drop-shadow(0 0 4px var(--line-c, #a78bfa));
+}
+
+/* ── Section divider ── */
+.fc-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 900px;
+  margin: 8px 0;
+}
+.fc-section::before,
+.fc-section::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+.fc-section-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 20px;
+  border-radius: 20px;
+  border: 1px solid;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ── Terminal (start/end) pill ── */
+.fc-terminal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 40px;
+  border-radius: 50px;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 2.5px solid;
+  position: relative;
+  text-align: center;
+}
+.fc-terminal::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 56px;
+  border: 2px solid;
+  opacity: 0;
+  animation: termPulse 2.5s ease-in-out infinite;
+}
+@keyframes termPulse {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.02); }
+}
+
+/* ── Process box ── */
+.fc-process {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 14px;
+  border: 1.5px solid;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fc-process:hover {
+  transform: translateY(-2px);
+}
+.fc-process-stripe {
+  padding: 10px 20px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.fc-process-body {
+  padding: 18px 22px 20px;
+}
+.fc-process-title {
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+.fc-process-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fc-process-line {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #c5d4ea;
+  padding-left: 14px;
+  border-left: 2px solid;
+  border-color: inherit;
+  opacity: 0.85;
+}
+.fc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.fc-chip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1.2px solid;
+}
+
+/* ── Diamond ── */
+.fc-diamond-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+  position: relative;
+}
+.fc-diamond {
+  width: 220px;
+  height: 130px;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
-
-#pipeline-svg {
-  font-family: 'IBM Plex Mono', monospace;
-  overflow: visible;
+.fc-diamond-bg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(45deg);
+  border-radius: 14px;
+  border: 2px solid;
+}
+.fc-diamond-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.4;
 }
 
-/* Node hover effects */
-.fc-node { cursor: default; transition: all 0.2s; }
-.fc-node:hover .node-bg { filter: brightness(1.15); }
-
-/* Animated flow dots on connectors */
-.flow-dot { animation: flowMove 1.8s linear infinite; opacity: 0; }
-@keyframes flowMove {
-  0%   { offset-distance: 0%;   opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
+/* ── DB cylinder ── */
+.fc-db {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 0 0 14px 14px;
+  border: 1.5px solid;
+  overflow: hidden;
+  position: relative;
 }
+.fc-db-disk {
+  height: 32px;
+  border-radius: 50%;
+  margin: -1px -1px 0;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+.fc-db-body {
+  padding: 14px 22px 20px;
+  margin-top: -4px;
+}
+.fc-db-title {
+  font-family: var(--sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.fc-db-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fc-db-line {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #c5d4ea;
+  opacity: 0.85;
+}
+
+/* ── IO parallelogram (simplified as rounded box) ── */
+.fc-io {
+  width: 100%;
+  max-width: 640px;
+  padding: 16px 28px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.fc-io::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -20%; right: -20%; bottom: 0;
+  transform: skewX(-8deg);
+  border-radius: 12px;
+  opacity: 0.06;
+}
+.fc-io-title {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  position: relative;
+}
+.fc-io-sub {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: #b0cce8;
+  position: relative;
+}
+
+/* ── Side exit box ── */
+.fc-side {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1.5px dashed;
+  min-width: 180px;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+.fc-side-title {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.fc-side-line {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: #8896b3;
+  line-height: 1.5;
+}
+
+/* ── Branch tag (YES/NO) ── */
+.fc-tag {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 14px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  white-space: nowrap;
+}
+
+/* ── Horizontal branch line ── */
+.fc-branch-line {
+  flex: 1;
+  height: 2px;
+  min-width: 20px;
+  max-width: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.fc-branch-line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+}
+.fc-branch-line::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: hDot 1.4s linear infinite;
+}
+@keyframes hDot {
+  0% { left: -10px; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+/* ── 7-status grid ── */
+.fc-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 900px;
+}
+.fc-status-grid.row2 {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 680px;
+}
+.fc-status-card {
+  padding: 14px 12px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.fc-status-card:hover {
+  transform: translateY(-3px);
+}
+.fc-status-label {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.fc-status-desc {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: #8896b3;
+  line-height: 1.5;
+}
+
+/* ── Color helpers ── */
+.clr-purple { --clr: #a78bfa; --clr-fill: rgba(167,139,250,0.1); --clr-dim: rgba(167,139,250,0.25); }
+.clr-green  { --clr: #34d399; --clr-fill: rgba(52,211,153,0.1);  --clr-dim: rgba(52,211,153,0.25); }
+.clr-teal   { --clr: #6ee7b7; --clr-fill: rgba(110,231,183,0.1); --clr-dim: rgba(110,231,183,0.25); }
+.clr-blue   { --clr: #38bdf8; --clr-fill: rgba(56,189,248,0.1);  --clr-dim: rgba(56,189,248,0.25); }
+.clr-amber  { --clr: #fbbf24; --clr-fill: rgba(251,191,36,0.1);  --clr-dim: rgba(251,191,36,0.25); }
+.clr-cyan   { --clr: #22d3ee; --clr-fill: rgba(34,211,238,0.1);  --clr-dim: rgba(34,211,238,0.25); }
+.clr-red    { --clr: #fb7185; --clr-fill: rgba(251,113,133,0.1);  --clr-dim: rgba(251,113,133,0.25); }
+.clr-slate  { --clr: #94a3b8; --clr-fill: rgba(148,163,184,0.08); --clr-dim: rgba(148,163,184,0.2); }
+
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -492,15 +872,358 @@ body::before{
     </div>
   </div>
 
-  <!-- ══ FLOWCHART — SVG CANVAS ══ -->
+  <!-- ══ FLOWCHART — HTML/CSS v2 ══ -->
   <div style="width:100%;border-top:1px solid rgba(167,139,250,0.12);padding-top:40px;margin-top:16px;">
-    <div style="text-align:center;margin-bottom:28px;">
-      <span style="font-family:var(--sans);font-size:0.85rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:var(--c-p);background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);padding:8px 28px;border-radius:8px;box-shadow:0 0 20px rgba(167,139,250,0.08);">
+    <div style="text-align:center;margin-bottom:32px;">
+      <span style="font-family:var(--sans);font-size:0.9rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:var(--c-p);background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);padding:10px 32px;border-radius:10px;box-shadow:0 0 30px rgba(167,139,250,0.1);">
         ✦ &nbsp; PIPELINE EXECUTION FLOW &nbsp; ✦
       </span>
     </div>
-    <div id="fc-svg-container">
-      <svg id="pipeline-svg" viewBox="0 0 1400 2800" width="1400" style="max-width:100%;"></svg>
+
+    <div class="fc-container">
+    <div class="fc-spine">
+
+      <!-- ═══ PHASE 0 ═══ -->
+      <div class="fc-section"><div class="fc-section-label" style="color:#a78bfa;border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.1);">⚙  PHASE 0  ·  PIPELINE STARTUP</div></div>
+      <div class="fc-line" style="--line-c:#a78bfa;height:24px;"></div><div class="fc-arrow" style="--line-c:#a78bfa;"></div>
+
+      <div class="fc-terminal" style="color:#d4bbff;border-color:#a78bfa;background:rgba(167,139,250,0.1);box-shadow:0 0 30px rgba(167,139,250,0.15);">🚀 run_pipeline() · Pipeline Start</div>
+
+      <div class="fc-line" style="--line-c:#a78bfa;"></div><div class="fc-arrow" style="--line-c:#a78bfa;"></div>
+
+      <div class="fc-process" style="border-color:#a78bfa;background:rgba(167,139,250,0.06);box-shadow:0 0 30px rgba(167,139,250,0.06);">
+        <div class="fc-process-stripe" style="color:#d4bbff;background:rgba(167,139,250,0.12);">⚙️  PROCESS · PHASE 0</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#d4bbff;">PipelineConfig()</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(167,139,250,0.3);">Load .env · Compute T-1 window (yesterday 00:00→23:59 IST)</div>
+            <div class="fc-process-line" style="border-color:rgba(167,139,250,0.3);">Query BQ MAX(kafka_timestamp) → start_from_ms = ts+1ms</div>
+            <div class="fc-process-line" style="border-color:rgba(167,139,250,0.3);">Idempotent: safe to restart at any point mid-run</div>
+          </div>
+          <div class="fc-chips">
+            <span class="fc-chip" style="color:#d4bbff;border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.12);">pipeline_run_date</span>
+            <span class="fc-chip" style="color:#d4bbff;border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.12);">start_from_ms</span>
+            <span class="fc-chip" style="color:#d4bbff;border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.12);">t1_end_ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#a78bfa;"></div><div class="fc-arrow" style="--line-c:#a78bfa;"></div>
+
+      <div class="fc-db" style="border-color:#a78bfa;background:rgba(167,139,250,0.06);">
+        <div class="fc-db-disk" style="border-color:#a78bfa;background:rgba(167,139,250,0.15);color:#d4bbff;">🔌  DATABASE INIT</div>
+        <div class="fc-db-body">
+          <div class="fc-db-title" style="color:#d4bbff;">DatabaseConnections.initialize()</div>
+          <div class="fc-db-lines">
+            <div class="fc-db-line">MongoDB: pool 20–100 connections · index po_id_idx</div>
+            <div class="fc-db-line">BigQuery: 25-col table auto-create · DAY partition</div>
+            <div class="fc-db-line">MySQL: pool=3 · Kafka: fetch 64KB min / 4MB max</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#a78bfa;"></div><div class="fc-arrow" style="--line-c:#a78bfa;"></div>
+
+      <div class="fc-process" style="border-color:#a78bfa;background:rgba(167,139,250,0.06);">
+        <div class="fc-process-stripe" style="color:#d4bbff;background:rgba(167,139,250,0.12);">⚙️  PROCESS</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#d4bbff;">PipelineProcessor.__init__()</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(167,139,250,0.3);">PipelineStats() · MongoCache(OrderedDict, max=5000)</div>
+            <div class="fc-process-line" style="border-color:rgba(167,139,250,0.3);">VendorTypeClassifier · Init kafka_pending=[] bq_pending=[]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PHASE 1 ═══ -->
+      <div class="fc-line" style="--line-c:#34d399;height:50px;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+      <div class="fc-section"><div class="fc-section-label" style="color:#34d399;border-color:rgba(52,211,153,0.25);background:rgba(52,211,153,0.1);">📡  PHASE 1  ·  KAFKA POLL LOOP</div></div>
+      <div class="fc-line" style="--line-c:#34d399;height:24px;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <div class="fc-io" style="border-color:#34d399;background:rgba(52,211,153,0.06);box-shadow:0 0 20px rgba(52,211,153,0.06);">
+        <div class="fc-io-title" style="color:#7fffd4;">📡 consumer.poll( timeout = 0.05 s )</div>
+        <div class="fc-io-sub">fetch.min.bytes=64KB · max.partition=4MB · queued.min=200k msgs</div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#34d399;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <!-- Decision: msg is None? -->
+      <div class="fc-diamond-wrap">
+        <div class="fc-diamond"><div class="fc-diamond-bg" style="border-color:#34d399;background:rgba(52,211,153,0.08);box-shadow:0 0 20px rgba(52,211,153,0.1);"></div><div class="fc-diamond-text" style="color:#7fffd4;">msg<br>is None?</div></div>
+        <div class="fc-tag" style="color:#fecdd3;border-color:#fb7185;background:rgba(251,113,133,0.12);">YES →</div>
+        <div class="fc-branch-line" style="--line-c:#fb7185;"><div style="position:absolute;inset:0;background:#fb7185;"></div></div>
+        <div class="fc-side" style="border-color:#fb7185;background:rgba(251,113,133,0.06);"><div class="fc-side-title" style="color:#fecdd3;">empty_polls++</div><div class="fc-side-line">&gt;100 polls + processed&gt;0 → END STREAM</div></div>
+      </div>
+
+      <div class="fc-tag" style="color:#7fffd4;border-color:#34d399;background:rgba(52,211,153,0.12);margin:4px 0;">↓ NO</div>
+      <div class="fc-line" style="--line-c:#34d399;height:20px;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <!-- Decision: msg.error()? -->
+      <div class="fc-diamond-wrap">
+        <div class="fc-diamond"><div class="fc-diamond-bg" style="border-color:#34d399;background:rgba(52,211,153,0.08);box-shadow:0 0 20px rgba(52,211,153,0.1);"></div><div class="fc-diamond-text" style="color:#7fffd4;">msg<br>.error()?</div></div>
+        <div class="fc-tag" style="color:#fecdd3;border-color:#fb7185;background:rgba(251,113,133,0.12);">YES →</div>
+        <div class="fc-branch-line" style="--line-c:#fb7185;"><div style="position:absolute;inset:0;background:#fb7185;"></div></div>
+        <div class="fc-side" style="border-color:#fb7185;background:rgba(251,113,133,0.06);"><div class="fc-side-title" style="color:#fecdd3;">log WARNING</div><div class="fc-side-line">skip msg · continue loop → poll()</div></div>
+      </div>
+
+      <div class="fc-tag" style="color:#7fffd4;border-color:#34d399;background:rgba(52,211,153,0.12);margin:4px 0;">↓ NO</div>
+      <div class="fc-line" style="--line-c:#34d399;height:20px;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <!-- Timestamp filter -->
+      <div class="fc-process" style="border-color:#34d399;background:rgba(52,211,153,0.06);box-shadow:0 0 20px rgba(52,211,153,0.06);">
+        <div class="fc-process-stripe" style="color:#7fffd4;background:rgba(52,211,153,0.12);">🕐  TIMESTAMP WINDOW FILTER</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#7fffd4;">Timestamp Filter</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(52,211,153,0.3);">ts ≤ 0 → skip invalid epoch</div>
+            <div class="fc-process-line" style="border-color:rgba(52,211,153,0.3);">ts ≤ start_from_ms → skipped_old++ · log every 500</div>
+            <div class="fc-process-line" style="border-color:rgba(52,211,153,0.3);">ts > t1_end_ms → STOP LOOP (exit condition)</div>
+            <div class="fc-process-line" style="border-color:rgba(52,211,153,0.3);">Else → valid event → append to buffer</div>
+          </div>
+          <div class="fc-chips"><span class="fc-chip" style="color:#7fffd4;border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.12);">kafka_timestamp</span></div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#34d399;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <div class="fc-io" style="border-color:#34d399;background:rgba(52,211,153,0.06);">
+        <div class="fc-io-title" style="color:#7fffd4;">📥 Parse JSON → kafka_pending.append()</div>
+        <div class="fc-io-sub">Extract: po_id · gstin · inv_date · inv_total · file_url · ts_ms</div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#34d399;"></div><div class="fc-arrow" style="--line-c:#34d399;"></div>
+
+      <!-- Decision: buffer >= 100? -->
+      <div class="fc-diamond-wrap">
+        <div class="fc-diamond"><div class="fc-diamond-bg" style="border-color:#34d399;background:rgba(52,211,153,0.08);box-shadow:0 0 20px rgba(52,211,153,0.1);"></div><div class="fc-diamond-text" style="color:#7fffd4;">len(pending)<br>≥ 100?</div></div>
+        <div class="fc-tag" style="color:#e2e8f0;border-color:#94a3b8;background:rgba(148,163,184,0.12);">NO →</div>
+        <div class="fc-branch-line" style="--line-c:#94a3b8;"><div style="position:absolute;inset:0;background:#94a3b8;"></div></div>
+        <div class="fc-side" style="border-color:#94a3b8;background:rgba(148,163,184,0.06);"><div class="fc-side-title" style="color:#e2e8f0;">← poll next msg</div><div class="fc-side-line">loop back to consumer.poll()</div></div>
+      </div>
+
+      <div class="fc-tag" style="color:#b2fce4;border-color:#6ee7b7;background:rgba(110,231,183,0.12);margin:4px 0;">↓ YES</div>
+
+      <!-- ═══ PHASE 1b ═══ -->
+      <div class="fc-line" style="--line-c:#6ee7b7;height:40px;"></div><div class="fc-arrow" style="--line-c:#6ee7b7;"></div>
+      <div class="fc-section"><div class="fc-section-label" style="color:#6ee7b7;border-color:rgba(110,231,183,0.25);background:rgba(110,231,183,0.1);">✂  PHASE 1b  ·  BATCH PROCESSING (100 msgs)</div></div>
+      <div class="fc-line" style="--line-c:#6ee7b7;height:24px;"></div><div class="fc-arrow" style="--line-c:#6ee7b7;"></div>
+
+      <!-- Split on po_id with side exit -->
+      <div class="fc-diamond-wrap">
+        <div class="fc-side" style="border-color:#fb7185;background:rgba(251,113,133,0.06);"><div class="fc-side-title" style="color:#fecdd3;">⚠ MISSING_KAFKA</div><div class="fc-side-line">po_id absent → empty BQ row</div></div>
+        <div class="fc-branch-line" style="--line-c:#fb7185;"><div style="position:absolute;inset:0;background:#fb7185;"></div></div>
+        <div class="fc-tag" style="color:#fecdd3;border-color:#fb7185;background:rgba(251,113,133,0.12);">← no po_id</div>
+        <div class="fc-process" style="border-color:#6ee7b7;background:rgba(110,231,183,0.06);box-shadow:0 0 20px rgba(110,231,183,0.06);flex:1;max-width:440px;">
+          <div class="fc-process-stripe" style="color:#b2fce4;background:rgba(110,231,183,0.12);">✂️  SPLIT ON po_id</div>
+          <div class="fc-process-body">
+            <div class="fc-process-title" style="color:#b2fce4;">process_kafka_batch() → split</div>
+            <div class="fc-process-lines">
+              <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">Partition: has_po_id vs missing_po list</div>
+              <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">missing_po → _empty_row(PO_ID_MISSING) immediately</div>
+              <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">Zero MongoDB cost for missing po_id rows</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#6ee7b7;"></div><div class="fc-arrow" style="--line-c:#6ee7b7;"></div>
+
+      <!-- LRU Cache -->
+      <div class="fc-process" style="border-color:#38bdf8;background:rgba(56,189,248,0.06);box-shadow:0 0 20px rgba(56,189,248,0.06);">
+        <div class="fc-process-stripe" style="color:#bae6fd;background:rgba(56,189,248,0.12);">💾  CACHE · O(1) LRU — MongoCache</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#bae6fd;">MongoCache._cache_lookup( po_id )</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(56,189,248,0.3);">OrderedDict LRU max=5,000 entries</div>
+            <div class="fc-process-line" style="border-color:rgba(56,189,248,0.3);">HIT → move_to_end() O(1) → return cached doc</div>
+            <div class="fc-process-line" style="border-color:rgba(56,189,248,0.3);">MISS → add to to_fetch[] for batch query</div>
+            <div class="fc-process-line" style="border-color:rgba(56,189,248,0.3);">Caches None sentinel → prevents re-querying missing</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#6ee7b7;"></div><div class="fc-arrow" style="--line-c:#6ee7b7;"></div>
+
+      <!-- MongoDB -->
+      <div class="fc-db" style="border-color:#6ee7b7;background:rgba(110,231,183,0.06);">
+        <div class="fc-db-disk" style="border-color:#6ee7b7;background:rgba(110,231,183,0.15);color:#b2fce4;">🗄  MONGODB · ⚡ 1 QUERY / 100 MSGS</div>
+        <div class="fc-db-body">
+          <div class="fc-db-title" style="color:#b2fce4;">fetch_mongo_batch() — single $in query</div>
+          <div class="fc-db-lines">
+            <div class="fc-db-line">find({request_body.po_id:{$in:[...ids]}}) · asyncio.to_thread</div>
+            <div class="fc-db-line">Project: request_body, response_body, created_at, _id</div>
+            <div class="fc-db-line">Was N separate find_one calls — now 1 round-trip</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#6ee7b7;"></div><div class="fc-arrow" style="--line-c:#6ee7b7;"></div>
+
+      <!-- build_bq_row -->
+      <div class="fc-process" style="border-color:#6ee7b7;background:rgba(110,231,183,0.06);box-shadow:0 0 20px rgba(110,231,183,0.06);">
+        <div class="fc-process-stripe" style="color:#b2fce4;background:rgba(110,231,183,0.12);">🏗  SYNCHRONOUS — build_bq_row</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#b2fce4;">build_bq_row() → determine_status()</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">Compute time_diff_seconds = mongo_created_at − kafka_ts_ms</div>
+            <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">Determine one of 7 status values (see fan-out below)</div>
+            <div class="fc-process-line" style="border-color:rgba(110,231,183,0.3);">vendor_type = None initially (stamped in Phase 2)</div>
+          </div>
+          <div class="fc-chips">
+            <span class="fc-chip" style="color:#b2fce4;border-color:rgba(110,231,183,0.4);background:rgba(110,231,183,0.12);">status</span>
+            <span class="fc-chip" style="color:#b2fce4;border-color:rgba(110,231,183,0.4);background:rgba(110,231,183,0.12);">time_diff_seconds</span>
+            <span class="fc-chip" style="color:#b2fce4;border-color:rgba(110,231,183,0.4);background:rgba(110,231,183,0.12);">batch_id</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 7 STATUS OUTCOMES ═══ -->
+      <div class="fc-line" style="--line-c:#6ee7b7;height:30px;"></div>
+      <div class="fc-section"><div class="fc-section-label" style="color:#6ee7b7;border-color:rgba(110,231,183,0.25);background:rgba(110,231,183,0.1);">↙  7 STATUS OUTCOMES  ↘</div></div>
+      <div style="height:14px;"></div>
+
+      <div class="fc-status-grid">
+        <div class="fc-status-card" style="border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.06);"><div class="fc-status-label" style="color:#34d399;">✅ MATCHED</div><div class="fc-status-desc">Date+total present · time_diff within SLA</div></div>
+        <div class="fc-status-card" style="border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.06);"><div class="fc-status-label" style="color:#fbbf24;">⚠ MONGO_EMPTY</div><div class="fc-status-desc">Doc found but all critical fields blank</div></div>
+        <div class="fc-status-card" style="border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.06);"><div class="fc-status-label" style="color:#fbbf24;">⚠ DATE_MISSING</div><div class="fc-status-desc">OCR failed to extract invoice date</div></div>
+        <div class="fc-status-card" style="border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.06);"><div class="fc-status-label" style="color:#fbbf24;">⚠ TOTAL_MISSING</div><div class="fc-status-desc">OCR missed invoice amount field</div></div>
+      </div>
+      <div style="height:10px;"></div>
+      <div class="fc-status-grid row2">
+        <div class="fc-status-card" style="border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.06);"><div class="fc-status-label" style="color:#a78bfa;">⏱ TIME_EXCEEDED</div><div class="fc-status-desc">time_diff > threshold · SLA breach</div></div>
+        <div class="fc-status-card" style="border-color:rgba(251,113,133,0.4);background:rgba(251,113,133,0.06);"><div class="fc-status-label" style="color:#fb7185;">❌ NOT_FOUND</div><div class="fc-status-desc">No MongoDB doc → MySQL Phase 2</div></div>
+        <div class="fc-status-card" style="border-color:rgba(251,113,133,0.4);background:rgba(251,113,133,0.06);"><div class="fc-status-label" style="color:#fb7185;">⚠ PO_MISSING</div><div class="fc-status-desc">Kafka msg has no po_id field</div></div>
+      </div>
+
+      <div style="height:14px;"></div>
+      <div style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:#5a6480;text-align:center;">bq_pending ≥ 500 → classify_and_write()</div>
+
+      <!-- ═══ PHASE 2 ═══ -->
+      <div class="fc-line" style="--line-c:#fbbf24;height:50px;"></div><div class="fc-arrow" style="--line-c:#fbbf24;"></div>
+      <div class="fc-section"><div class="fc-section-label" style="color:#fbbf24;border-color:rgba(251,191,36,0.25);background:rgba(251,191,36,0.1);">🏷  PHASE 2  ·  VENDOR CLASSIFICATION</div></div>
+      <div class="fc-line" style="--line-c:#fbbf24;height:24px;"></div><div class="fc-arrow" style="--line-c:#fbbf24;"></div>
+
+      <div class="fc-process" style="border-color:#fbbf24;background:rgba(251,191,36,0.06);box-shadow:0 0 20px rgba(251,191,36,0.06);">
+        <div class="fc-process-stripe" style="color:#fef08a;background:rgba(251,191,36,0.12);">✂️  VENDOR CLASSIFY</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#fef08a;">classify_and_write( batch ) → split</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">legit_rows (status ≠ NOT_FOUND) → tagged Legit instantly</div>
+            <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">not_found_rows → GSTIN dedup + MySQL query</div>
+            <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">Zero MySQL cost for all matched / incomplete rows</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#fbbf24;"></div><div class="fc-arrow" style="--line-c:#fbbf24;"></div>
+
+      <!-- Decision: NOT_FOUND? -->
+      <div class="fc-diamond-wrap">
+        <div class="fc-side" style="border-color:#34d399;background:rgba(52,211,153,0.06);"><div class="fc-side-title" style="color:#7fffd4;">✅ vendor_type = Legit</div><div class="fc-side-line">OCR pipeline worked · no MySQL</div></div>
+        <div class="fc-branch-line" style="--line-c:#34d399;"><div style="position:absolute;inset:0;background:#34d399;"></div></div>
+        <div class="fc-tag" style="color:#7fffd4;border-color:#34d399;background:rgba(52,211,153,0.12);">← NO</div>
+        <div class="fc-diamond"><div class="fc-diamond-bg" style="border-color:#fbbf24;background:rgba(251,191,36,0.08);box-shadow:0 0 20px rgba(251,191,36,0.1);"></div><div class="fc-diamond-text" style="color:#fef08a;">status ==<br>NOT_FOUND?</div></div>
+      </div>
+
+      <div class="fc-tag" style="color:#fef08a;border-color:#fbbf24;background:rgba(251,191,36,0.12);margin:4px 0;">↓ YES</div>
+      <div class="fc-line" style="--line-c:#fbbf24;height:20px;"></div><div class="fc-arrow" style="--line-c:#fbbf24;"></div>
+
+      <!-- MySQL -->
+      <div class="fc-db" style="border-color:#fbbf24;background:rgba(251,191,36,0.06);">
+        <div class="fc-db-disk" style="border-color:#fbbf24;background:rgba(251,191,36,0.15);color:#fef08a;">🗃  MYSQL · Dim_Sys_Plant · ⚡ 1 QUERY / BATCH</div>
+        <div class="fc-db-body">
+          <div class="fc-db-title" style="color:#fef08a;">Dedup GSTINs → Dim_Sys_Plant query</div>
+          <div class="fc-db-lines">
+            <div class="fc-db-line">Set comprehension on not_found_rows.final_gstin → dedup</div>
+            <div class="fc-db-line">SELECT DISTINCT WHERE GSTIN IN (%s)</div>
+            <div class="fc-db-line">AND Vertical NOT IN (ALL, ABFRL) AND Company_ID &lt;&gt; 1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#fbbf24;"></div><div class="fc-arrow" style="--line-c:#fbbf24;"></div>
+
+      <!-- Stamp vendor_type with 3-way exits -->
+      <div class="fc-diamond-wrap" style="gap:12px;">
+        <div class="fc-side" style="border-color:#34d399;background:rgba(52,211,153,0.06);min-width:140px;"><div class="fc-side-title" style="color:#7fffd4;">✅ Legit</div><div class="fc-side-line">status ≠ NOT_FOUND</div></div>
+        <div class="fc-process" style="border-color:#fbbf24;background:rgba(251,191,36,0.06);flex:1;max-width:380px;">
+          <div class="fc-process-stripe" style="color:#fef08a;background:rgba(251,191,36,0.12);">🏷️  STAMP vendor_type</div>
+          <div class="fc-process-body">
+            <div class="fc-process-title" style="color:#fef08a;">row["vendor_type"] = ?</div>
+            <div class="fc-process-lines">
+              <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">≠ NOT_FOUND → Legit</div>
+              <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">NOT_FOUND + GSTIN in manual_set → Manual</div>
+              <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">NOT_FOUND + not in set → Moglix</div>
+              <div class="fc-process-line" style="border-color:rgba(251,191,36,0.3);">MySQL ERROR → fallback → Moglix</div>
+            </div>
+            <div class="fc-chips">
+              <span class="fc-chip" style="color:#7fffd4;border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.12);">✅ Legit</span>
+              <span class="fc-chip" style="color:#fef08a;border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.12);">📋 Manual</span>
+              <span class="fc-chip" style="color:#fecdd3;border-color:rgba(251,113,133,0.4);background:rgba(251,113,133,0.12);">🔴 Moglix</span>
+            </div>
+          </div>
+        </div>
+        <div class="fc-side" style="border-color:#fb7185;background:rgba(251,113,133,0.06);min-width:140px;"><div class="fc-side-title" style="color:#fecdd3;">🔴 Moglix</div><div class="fc-side-line">GSTIN not in manual_set</div></div>
+      </div>
+
+      <!-- ═══ PHASE 3 ═══ -->
+      <div class="fc-line" style="--line-c:#22d3ee;height:50px;"></div><div class="fc-arrow" style="--line-c:#22d3ee;"></div>
+      <div class="fc-section"><div class="fc-section-label" style="color:#22d3ee;border-color:rgba(34,211,238,0.25);background:rgba(34,211,238,0.1);">☁  PHASE 3  ·  BIGQUERY STREAMING INSERT</div></div>
+      <div class="fc-line" style="--line-c:#22d3ee;height:24px;"></div><div class="fc-arrow" style="--line-c:#22d3ee;"></div>
+
+      <div class="fc-process" style="border-color:#22d3ee;background:rgba(34,211,238,0.06);box-shadow:0 0 20px rgba(34,211,238,0.06);">
+        <div class="fc-process-stripe" style="color:#cffafe;background:rgba(34,211,238,0.12);">🔄  SERIALIZE</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#cffafe;">serialize_for_json()</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">datetime → ISO 8601 string · None → JSON null</div>
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">Primitives pass-through · Dicts/lists recurse</div>
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">Prepares complete BQ streaming insert payload</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#22d3ee;"></div><div class="fc-arrow" style="--line-c:#22d3ee;"></div>
+
+      <!-- BQ Insert with side exits -->
+      <div class="fc-diamond-wrap" style="gap:12px;">
+        <div class="fc-side" style="border-color:#fb7185;background:rgba(251,113,133,0.06);min-width:160px;"><div class="fc-side-title" style="color:#fecdd3;">⚠ Insert Error</div><div class="fc-side-line">log + stats.errors+=N · non-fatal</div></div>
+        <div class="fc-db" style="border-color:#22d3ee;background:rgba(34,211,238,0.06);flex:1;max-width:420px;">
+          <div class="fc-db-disk" style="border-color:#22d3ee;background:rgba(34,211,238,0.15);color:#cffafe;">☁  BIGQUERY · STREAMING INSERT</div>
+          <div class="fc-db-body">
+            <div class="fc-db-title" style="color:#cffafe;">insert_rows_json() — 500-row batch</div>
+            <div class="fc-db-lines">
+              <div class="fc-db-line">BQ streaming → project.dataset.ocr_accuracy_results</div>
+              <div class="fc-db-line">Partitioned by processing_timestamp (DAY)</div>
+              <div class="fc-db-line">⚡ Rolling mid-pipeline → flat RAM at any volume</div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-side" style="border-color:#34d399;background:rgba(52,211,153,0.06);min-width:160px;"><div class="fc-side-title" style="color:#7fffd4;">✅ Batch Written</div><div class="fc-side-line">total_batches++ · hook</div></div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#22d3ee;"></div><div class="fc-arrow" style="--line-c:#22d3ee;"></div>
+
+      <!-- Finalise -->
+      <div class="fc-process" style="border-color:#22d3ee;background:rgba(34,211,238,0.06);box-shadow:0 0 20px rgba(34,211,238,0.06);">
+        <div class="fc-process-stripe" style="color:#cffafe;background:rgba(34,211,238,0.12);">🔚  FINALISE</div>
+        <div class="fc-process-body">
+          <div class="fc-process-title" style="color:#cffafe;">Drain + connections.close()</div>
+          <div class="fc-process-lines">
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">on_batch_written() hook → override for Slack / metrics</div>
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">Flush remaining kafka_pending + bq_pending buffers</div>
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">stats.log_summary() → totals, cache ratio, vendor counts</div>
+            <div class="fc-process-line" style="border-color:rgba(34,211,238,0.3);">finally block cleanly closes all 4 connections</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-line" style="--line-c:#94a3b8;"></div><div class="fc-arrow" style="--line-c:#94a3b8;"></div>
+
+      <!-- END -->
+      <div class="fc-terminal" style="color:#e2e8f0;border-color:#94a3b8;background:rgba(148,163,184,0.08);box-shadow:0 0 20px rgba(148,163,184,0.1);">✅ Pipeline Complete · All connections closed</div>
+
+    </div>
     </div>
   </div>
 
@@ -634,7 +1357,7 @@ function setMode(m){
     document.getElementById('view'+v).classList.toggle('active',v.toLowerCase()===m);
     document.getElementById('btn'+v).classList.toggle('active',v.toLowerCase()===m);
   });
-  if(m==='dev'){setTimeout(()=>{drawWires();drawFlowchart();},200);}
+  if(m==='dev'){setTimeout(()=>{drawWires();},200);}
 }
 
 // ── Flow toggle ──
@@ -730,695 +1453,8 @@ function drawWires(){
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  FLOWCHART — v8: Fixed spacing, text, rich animations
-// ═══════════════════════════════════════════════════════════════
-function drawFlowchart(){
-  const svg = document.getElementById('pipeline-svg');
-  if(!svg) return;
-  svg.innerHTML = '';
+// drawFlowchart removed — now pure HTML/CSS
 
-  const W = 1400;
-  const CX = W / 2;
-
-  // SVG element helper
-  function el(tag, attrs, text){
-    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
-    Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));
-    if(text !== undefined) e.textContent = text;
-    return e;
-  }
-  function grp(){ return el('g',{}); }
-
-  // ── COLOURS ──
-  const C = {
-    purple: { fill:'rgba(167,139,250,0.13)', stroke:'#a78bfa', text:'#d4bbff', dim:'#a78bfa', glow:'rgba(167,139,250,0.5)' },
-    green:  { fill:'rgba(52,211,153,0.11)',  stroke:'#34d399', text:'#7fffd4', dim:'#34d399', glow:'rgba(52,211,153,0.45)' },
-    teal:   { fill:'rgba(110,231,183,0.11)', stroke:'#6ee7b7', text:'#b2fce4', dim:'#6ee7b7', glow:'rgba(110,231,183,0.4)' },
-    blue:   { fill:'rgba(56,189,248,0.11)',  stroke:'#38bdf8', text:'#bae6fd', dim:'#38bdf8', glow:'rgba(56,189,248,0.4)' },
-    amber:  { fill:'rgba(251,191,36,0.11)',  stroke:'#fbbf24', text:'#fef08a', dim:'#fbbf24', glow:'rgba(251,191,36,0.4)' },
-    cyan:   { fill:'rgba(34,211,238,0.11)',  stroke:'#22d3ee', text:'#cffafe', dim:'#22d3ee', glow:'rgba(34,211,238,0.4)' },
-    red:    { fill:'rgba(251,113,133,0.11)', stroke:'#fb7185', text:'#fecdd3', dim:'#fb7185', glow:'rgba(251,113,133,0.4)' },
-    slate:  { fill:'rgba(148,163,184,0.08)', stroke:'#94a3b8', text:'#e2e8f0', dim:'#94a3b8', glow:'rgba(148,163,184,0.3)' },
-  };
-  function cn(c){ return Object.entries(C).find(([,v])=>v===c)?.[0]||'slate'; }
-
-  // ── DEFS: filters + markers ──
-  const defs = el('defs');
-  // Glow filters
-  Object.entries(C).forEach(([name, c])=>{
-    const f = el('filter',{id:`gf-${name}`,x:'-40%',y:'-40%',width:'180%',height:'180%'});
-    const b1 = el('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'3',result:'b1'});
-    const b2 = el('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'8',result:'b2'});
-    const flood = el('feFlood',{'flood-color':c.glow,'flood-opacity':'0.6',result:'fc'});
-    const comp = el('feComposite',{in:'fc',in2:'b1',operator:'in',result:'sg'});
-    const merge = el('feMerge');
-    [el('feMergeNode',{in:'sg'}), el('feMergeNode',{in:'SourceGraphic'})].forEach(n=>merge.appendChild(n));
-    f.appendChild(b1); f.appendChild(b2); f.appendChild(flood); f.appendChild(comp); f.appendChild(merge);
-    defs.appendChild(f);
-
-    // Pulse filter (stronger glow for node pulse animation)
-    const fp = el('filter',{id:`gfp-${name}`,x:'-50%',y:'-50%',width:'200%',height:'200%'});
-    const bp = el('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'6',result:'bp'});
-    const fp2 = el('feFlood',{'flood-color':c.glow,'flood-opacity':'0.9',result:'fc2'});
-    const cp = el('feComposite',{in:'fc2',in2:'bp',operator:'in',result:'sgp'});
-    const mp = el('feMerge');
-    [el('feMergeNode',{in:'sgp'}), el('feMergeNode',{in:'SourceGraphic'})].forEach(n=>mp.appendChild(n));
-    fp.appendChild(bp); fp.appendChild(fp2); fp.appendChild(cp); fp.appendChild(mp);
-    defs.appendChild(fp);
-  });
-
-  // Arrow markers (solid + for each color)
-  Object.entries(C).forEach(([name, c])=>{
-    const m = el('marker',{id:`arr-${name}`,markerWidth:'9',markerHeight:'7',refX:'8',refY:'3.5',orient:'auto'});
-    m.appendChild(el('polygon',{points:'0 0, 9 3.5, 0 7',fill:c.stroke,opacity:'0.95'}));
-    defs.appendChild(m);
-    // small variant
-    const ms = el('marker',{id:`arrs-${name}`,markerWidth:'6',markerHeight:'5',refX:'5',refY:'2.5',orient:'auto'});
-    ms.appendChild(el('polygon',{points:'0 0, 6 2.5, 0 5',fill:c.stroke,opacity:'0.8'}));
-    defs.appendChild(ms);
-  });
-
-  // Animated gradient for special connectors
-  const lg = el('linearGradient',{id:'flow-grad',x1:'0%',y1:'0%',x2:'0%',y2:'100%'});
-  lg.appendChild(el('stop',{offset:'0%','stop-color':'#a78bfa','stop-opacity':'0.9'}));
-  lg.appendChild(el('stop',{offset:'50%','stop-color':'#34d399','stop-opacity':'0.9'}));
-  lg.appendChild(el('stop',{offset:'100%','stop-color':'#22d3ee','stop-opacity':'0.9'}));
-  defs.appendChild(lg);
-
-  svg.appendChild(defs);
-
-  // ── PATH COUNTER for unique IDs ──
-  let _pid = 0;
-  const newPid = ()=>`p${++_pid}`;
-
-  // ══════════════════════════════════════════════════
-  // NODE DRAWING FUNCTIONS
-  // ══════════════════════════════════════════════════
-
-  // START / END terminal pill with pulsing glow ring
-  function terminal(cx, cy, w, h, text, c){
-    const g2 = grp();
-    // outer glow ring animation
-    const ring = el('rect',{x:cx-w/2-4,y:cy-h/2-4,width:w+8,height:h+8,rx:h/2+4,fill:'none',stroke:c.stroke,'stroke-width':'2',opacity:'0'});
-    const ra = el('animate',{attributeName:'opacity',values:'0;0.6;0',dur:'2.5s',repeatCount:'indefinite'});
-    const ra2 = el('animate',{attributeName:'stroke-width',values:'2;6;2',dur:'2.5s',repeatCount:'indefinite'});
-    ring.appendChild(ra); ring.appendChild(ra2); g2.appendChild(ring);
-    // main pill
-    g2.appendChild(el('rect',{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:c.fill,stroke:c.stroke,'stroke-width':'2.5',filter:`url(#gf-${cn(c)})`}));
-    g2.appendChild(el('text',{x:cx,y:cy+1,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'18','font-weight':'800','letter-spacing':'0.5px'},text));
-    return g2;
-  }
-
-  // Process box — auto-height, clean non-overlapping layout
-  // Stripe: 40px | Title: y+62 | Lines: y+90 step 24px | Chips: last 34px | bottom pad 18px
-  function processBox(cx, y, w, phase, title, lines, c, chips=[]){
-    const hasChips = chips.length > 0;
-    const h = 40 + 34 + lines.length * 24 + (hasChips ? 38 : 14) + 18;
-    const x = cx - w/2;
-    const g2 = grp();
-
-    // drop shadow
-    g2.appendChild(el('rect',{x:x+4,y:y+4,width:w,height:h,rx:12,fill:c.stroke,opacity:'0.07'}));
-    // main box
-    const box = el('rect',{x,y,width:w,height:h,rx:12,fill:c.fill,stroke:c.stroke,'stroke-width':'1.8'});
-    g2.appendChild(box);
-    // top accent stripe (40px tall)
-    g2.appendChild(el('rect',{x,y,width:w,height:40,rx:12,fill:c.stroke,opacity:'0.14'}));
-    g2.appendChild(el('rect',{x,y:y+28,width:w,height:12,fill:c.stroke,opacity:'0.14'}));
-    // left accent bar below stripe
-    g2.appendChild(el('rect',{x,y:y+40,width:3,height:h-54,rx:1.5,fill:c.stroke,opacity:'0.45'}));
-
-    // Phase label — vertically centred in 40px stripe
-    g2.appendChild(el('text',{x:x+16,y:y+23,'text-anchor':'start','dominant-baseline':'middle',fill:c.text,'font-family':'IBM Plex Mono,monospace','font-size':'11.5','font-weight':'700','letter-spacing':'0.08em',opacity:'0.9'},phase));
-
-    // Title — below stripe
-    g2.appendChild(el('text',{x:x+18,y:y+62,'text-anchor':'start','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'16','font-weight':'800','letter-spacing':'-0.01em'},title));
-
-    // Body lines — start at y+90, step 24px
-    lines.forEach((line,i)=>{
-      g2.appendChild(el('text',{x:x+18,y:y+90+i*24,'text-anchor':'start','dominant-baseline':'middle',fill:'#c5d4ea','font-family':'IBM Plex Mono,monospace','font-size':'11.5','letter-spacing':'0.01em'},line));
-    });
-
-    // Chips row — pinned 18px from bottom
-    if(hasChips){
-      let cx2 = x+18;
-      const chipY = y+h-32;
-      chips.forEach(([label2, cc])=>{
-        const tw = label2.length*7.2+18;
-        g2.appendChild(el('rect',{x:cx2,y:chipY,width:tw,height:22,rx:6,fill:cc.fill,stroke:cc.stroke,'stroke-width':'1.2'}));
-        g2.appendChild(el('text',{x:cx2+tw/2,y:chipY+11,'text-anchor':'middle','dominant-baseline':'middle',fill:cc.text,'font-family':'IBM Plex Mono,monospace','font-size':'10','font-weight':'700'},label2));
-        cx2 += tw+8;
-      });
-    }
-
-    // border pulse
-    const pa = el('animate',{attributeName:'opacity',values:'1;0.82;1',dur:'3.5s',repeatCount:'indefinite',begin:`${(Math.random()*2).toFixed(1)}s`});
-    box.appendChild(pa);
-
-    return { node: g2, h };
-  }
-
-  // Diamond decision node
-  function diamond(cx, cy, w, h, lines, c){
-    const g2 = grp();
-    const d = `M ${cx} ${cy-h/2} L ${cx+w/2} ${cy} L ${cx} ${cy+h/2} L ${cx-w/2} ${cy} Z`;
-    g2.appendChild(el('path',{d,fill:c.stroke,opacity:'0.07',transform:'translate(4,4)'}));
-    g2.appendChild(el('path',{d,fill:c.fill,stroke:c.stroke,'stroke-width':'2.2',filter:`url(#gf-${cn(c)})`}));
-    const textLines = lines.split('\n');
-    textLines.forEach((line,i)=>{
-      g2.appendChild(el('text',{x:cx,y:cy+(i-(textLines.length-1)/2)*18,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'14','font-weight':'800'},line));
-    });
-    return g2;
-  }
-
-  // DB cylinder node — auto-height, precise layout
-  function dbBox(cx, y, w, dbLabel, title, lines, c){
-    const EH = 20; // ellipse half-height
-    const h = EH + 36 + lines.length * 24 + 22;
-    const x = cx - w/2;
-    const g2 = grp();
-
-    // body rect starts at EH to merge with ellipse bottom
-    g2.appendChild(el('rect',{x,y:y+EH,width:w,height:h-EH,rx:8,fill:c.fill,stroke:c.stroke,'stroke-width':'1.8'}));
-    // top ellipse (disk top)
-    g2.appendChild(el('ellipse',{cx,cy:y+EH,rx:w/2,ry:EH,fill:c.fill,stroke:c.stroke,'stroke-width':'1.8'}));
-    // tinted top disk
-    g2.appendChild(el('ellipse',{cx,cy:y+EH,rx:w/2,ry:EH,fill:c.stroke,opacity:'0.20'}));
-    // cover seam line
-    g2.appendChild(el('rect',{x:x+2,y:y+EH,width:w-4,height:10,fill:c.fill}));
-    // left bar
-    g2.appendChild(el('rect',{x,y:y+EH*2,width:3,height:h-EH*2-8,rx:1.5,fill:c.stroke,opacity:'0.45'}));
-
-    // DB type label on disk — centred vertically in ellipse
-    g2.appendChild(el('text',{x:cx,y:y+EH,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'IBM Plex Mono,monospace','font-size':'11','font-weight':'800','letter-spacing':'0.09em'},dbLabel));
-
-    // Title — below disk seam
-    g2.appendChild(el('text',{x:x+18,y:y+EH+30,'text-anchor':'start','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'15','font-weight':'800'},title));
-
-    // Body lines — start at EH+56, step 24px
-    lines.forEach((line,i)=>{
-      g2.appendChild(el('text',{x:x+18,y:y+EH+56+i*24,'text-anchor':'start','dominant-baseline':'middle',fill:'#c5d4ea','font-family':'IBM Plex Mono,monospace','font-size':'11.5','letter-spacing':'0.01em'},line));
-    });
-
-    return { node: g2, h };
-  }
-
-  // IO parallelogram
-  function ioBox(cx, y, w, h, title, sub, c){
-    const x = cx - w/2, sk = 22;
-    const d = `M ${x+sk} ${y} L ${x+w} ${y} L ${x+w-sk} ${y+h} L ${x} ${y+h} Z`;
-    const g2 = grp();
-    g2.appendChild(el('path',{d,fill:c.fill,stroke:c.stroke,'stroke-width':'1.8',filter:`url(#gf-${cn(c)})`}));
-    g2.appendChild(el('text',{x:cx,y:y+h/2-10,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'15','font-weight':'800'},title));
-    g2.appendChild(el('text',{x:cx,y:y+h/2+12,'text-anchor':'middle','dominant-baseline':'middle',fill:'#b0cce8','font-family':'IBM Plex Mono,monospace','font-size':'11'},sub));
-    return g2;
-  }
-
-  // Side dead-end box (for branch exits)
-  function sideBox(bx, cy, w, h, title, lines, c){
-    const g2 = grp();
-    const ty = cy - h/2;
-    g2.appendChild(el('rect',{x:bx,y:ty,width:w,height:h,rx:9,fill:c.fill,stroke:c.stroke,'stroke-width':'1.5','stroke-dasharray':'5 3'}));
-    // header stripe 22px tall
-    g2.appendChild(el('rect',{x:bx,y:ty,width:w,height:22,rx:9,fill:c.stroke,opacity:'0.13'}));
-    g2.appendChild(el('rect',{x:bx,y:ty+14,width:w,height:8,fill:c.stroke,opacity:'0.13'}));
-    // title vertically centred in stripe
-    g2.appendChild(el('text',{x:bx+w/2,y:ty+12,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'11.5','font-weight':'800'},title));
-    // body lines — first line at ty+38, step 18px (clear of 22px stripe)
-    lines.forEach((line,i)=>{
-      g2.appendChild(el('text',{x:bx+10,y:ty+38+i*18,'text-anchor':'start','dominant-baseline':'middle',fill:'#8896b3','font-family':'IBM Plex Mono,monospace','font-size':'10.5'},line));
-    });
-    return g2;
-  }
-
-  // Section divider label
-  function sectionLabel(cx, y, text, c){
-    const g2 = grp();
-    const tw = text.length*7.5+30;
-    const tx = cx - tw/2;
-    g2.appendChild(el('line',{x1:cx-300,y1:y,x2:tx-10,y2:y,stroke:c?c.stroke:'rgba(255,255,255,0.06)','stroke-width':'1'}));
-    g2.appendChild(el('line',{x1:tx+tw+10,y1:y,x2:cx+300,y2:y,stroke:c?c.stroke:'rgba(255,255,255,0.06)','stroke-width':'1'}));
-    g2.appendChild(el('rect',{x:tx,y:y-9,width:tw,height:18,rx:9,fill:c?c.fill:'rgba(255,255,255,0.03)',stroke:c?c.stroke:'rgba(255,255,255,0.1)','stroke-width':'1'}));
-    g2.appendChild(el('text',{x:cx,y:y+1,'text-anchor':'middle','dominant-baseline':'middle',fill:c?c.text:'#5a6888','font-family':'IBM Plex Mono,monospace','font-size':'11.5','font-weight':'800','letter-spacing':'0.12em'},text));
-    return g2;
-  }
-
-  // YES/NO branch pill tag
-  function tag(x, y, text, c){
-    const g2 = grp();
-    const tw = text.length*8+16;
-    g2.appendChild(el('rect',{x:x-tw/2,y:y-10,width:tw,height:20,rx:10,fill:c.fill,stroke:c.stroke,'stroke-width':'1.8'}));
-    g2.appendChild(el('text',{x,y:y+1,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'Syne,sans-serif','font-size':'12.5','font-weight':'800'},text));
-    return g2;
-  }
-
-  // ══════════════════════════════════════════════════
-  // CONNECTOR — animated flowing line with multiple dots
-  // ══════════════════════════════════════════════════
-  function conn(d, c, opts={}){
-    const pid = newPid();
-    const g2 = grp();
-    const {label='', nDots=2, speed=2.0, dashed=false, thick=false} = opts;
-
-    // Glow underlay
-    g2.appendChild(el('path',{d,stroke:c.stroke,'stroke-width': thick?'7':'5',fill:'none',opacity:'0.08',filter:`url(#gf-${cn(c)})`}));
-    // Main line
-    const ln = el('path',{id:pid,d,stroke:c.stroke,'stroke-width': thick?'2.5':'2',fill:'none',opacity:'0.85'});
-    if(dashed) ln.setAttribute('stroke-dasharray','7 5');
-    else ln.setAttribute('stroke-dasharray','8 5');
-    ln.style.animation = `wireDash ${dashed?2.5:1.8}s linear infinite`;
-    ln.classList.add('flow-anim');
-    g2.appendChild(ln);
-
-    // Multiple animated dots at staggered delays
-    for(let di=0; di<nDots; di++){
-      const dot = el('circle',{r: di===0?'5':'3.5', fill: c.stroke, filter:`url(#gfp-${cn(c)})`, opacity: di===0?'1':'0.7'});
-      const am = el('animateMotion',{dur:`${speed}s`,repeatCount:'indefinite',begin:`${(di/nDots)*speed}s`,calcMode:'spline',keyTimes:'0;1',keySplines:'0.25 0 0.75 1'});
-      am.classList.add('flow-anim');
-      const mp = el('mpath',{'href':'#'+pid});
-      am.appendChild(mp); dot.appendChild(am);
-      g2.appendChild(dot);
-    }
-
-    // Label badge on connector midpoint
-    if(label){
-      const nums = d.match(/-?\d+(\.\d+)?/g).map(Number);
-      const mx = (nums[0]+nums[nums.length-2])/2;
-      const my = (nums[1]+nums[nums.length-1])/2;
-      const lw = label.length*7+16;
-      g2.appendChild(el('rect',{x:mx-lw/2,y:my-9,width:lw,height:18,rx:9,fill:'#060813',stroke:c.stroke,'stroke-width':'1',opacity:'0.95'}));
-      g2.appendChild(el('text',{x:mx,y:my+1,'text-anchor':'middle','dominant-baseline':'middle',fill:c.text,'font-family':'IBM Plex Mono,monospace','font-size':'9.5','font-weight':'700'},label));
-    }
-    return g2;
-  }
-
-  // Arrow tip (standalone polygon)
-  function arrow(x, y, dir, c){
-    const sz = 8;
-    let pts;
-    if(dir==='down')  pts=`${x-sz/1.5},${y-sz} ${x+sz/1.5},${y-sz} ${x},${y}`;
-    if(dir==='left')  pts=`${x+sz},${y-sz/1.5} ${x+sz},${y+sz/1.5} ${x},${y}`;
-    if(dir==='right') pts=`${x-sz},${y-sz/1.5} ${x-sz},${y+sz/1.5} ${x},${y}`;
-    if(dir==='up')    pts=`${x-sz/1.5},${y+sz} ${x+sz/1.5},${y+sz} ${x},${y}`;
-    return el('polygon',{points:pts,fill:c.stroke,opacity:'0.95'});
-  }
-
-  // ══════════════════════════════════════════════════
-  // LAYOUT
-  // ══════════════════════════════════════════════════
-  let y = 40;
-  const BW = 480;      // main box width (wider for text)
-  const LX = 140;      // left side exit x
-  const RX = W-140;    // right side exit x
-  const SBW = 190;     // side box width
-  const DW = 290, DH = 100; // diamond width/height
-  const GAP = 38;      // standard connector gap
-
-  // ── PHASE 0 STARTUP ──
-  svg.appendChild(sectionLabel(CX, y, '⚙  PHASE 0  ·  PIPELINE STARTUP', C.purple));
-  y += 25;
-
-  // START
-  const startG = terminal(CX, y+28, 400, 52, '🚀  run_pipeline()  ·  Pipeline Start', C.purple);
-  svg.appendChild(startG);
-  y += 48;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.purple, {nDots:1,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.purple));
-  y += GAP;
-
-  // PipelineConfig
-  const cfg = processBox(CX, y, BW, '⚙️  PROCESS  ·  PHASE 0', 'PipelineConfig()', [
-    'Load .env · Compute T-1 window (yesterday 00:00→23:59 IST)',
-    'Query BQ MAX(kafka_timestamp) → start_from_ms = ts+1ms',
-    'Idempotent: safe to restart at any point mid-run'
-  ], C.purple, [['pipeline_run_date',C.purple],['start_from_ms',C.purple],['t1_end_ms',C.purple]]);
-  svg.appendChild(cfg.node); y += cfg.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.purple, {nDots:1,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.purple));
-  y += GAP;
-
-  // DB Init
-  const dbi = dbBox(CX, y, BW, '🔌  DATABASE INIT', 'DatabaseConnections.initialize()', [
-    'MongoDB: pool 20–100 connections · index po_id_idx',
-    'BigQuery: 25-col table auto-create · DAY partition',
-    'MySQL: pool=3 · Kafka: fetch 64KB min / 4MB max'
-  ], C.purple);
-  svg.appendChild(dbi.node); y += dbi.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.purple, {nDots:1,speed:1.8}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.purple));
-  y += GAP;
-
-  const proc = processBox(CX, y, BW, '⚙️  PROCESS', 'PipelineProcessor.__init__()', [
-    'PipelineStats() · MongoCache(OrderedDict, max=5000)',
-    'VendorTypeClassifier · Init kafka_pending=[] bq_pending=[]'
-  ], C.purple, []);
-  svg.appendChild(proc.node); y += proc.h;
-
-  // ── KAFKA LOOP START ──
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP+10}`, C.green, {nDots:3,speed:1.4,label:'begin Kafka polling loop'}));
-  svg.appendChild(arrow(CX,y+GAP+10,'down',C.green));
-  y += GAP+10;
-  y += 16;
-  svg.appendChild(sectionLabel(CX, y-10, '📡  PHASE 1  ·  KAFKA POLL LOOP', C.green));
-  y += 14;
-
-  // consumer.poll IO
-  svg.appendChild(ioBox(CX, y, BW+30, 62, '📡  consumer.poll( timeout = 0.05 s )', 'fetch.min.bytes=64KB · max.partition=4MB · queued.min=200k msgs', C.green));
-  y += 56;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.green, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.green));
-  y += GAP;
-
-  // DECISION 1 — msg is None?
-  svg.appendChild(diamond(CX, y+DH/2, DW, DH, 'msg\nis None?', C.green));
-  // YES → right
-  svg.appendChild(conn(`M ${CX+DW/2} ${y+DH/2} L ${RX-SBW} ${y+DH/2}`, C.red, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(RX-SBW,y+DH/2,'right',C.red));
-  svg.appendChild(tag(CX+DW/2+40, y+DH/2-16, 'YES', C.red));
-  svg.appendChild(sideBox(RX-SBW, y+DH/2, SBW, 72, 'empty_polls++', ['>100 polls + processed>0','→ END STREAM'], C.red));
-  // NO ↓
-  svg.appendChild(tag(CX+14, y+DH+8, 'NO', C.green));
-  svg.appendChild(conn(`M ${CX} ${y+DH} L ${CX} ${y+DH+GAP}`, C.green, {nDots:1,speed:1.4}));
-  svg.appendChild(arrow(CX,y+DH+GAP,'down',C.green));
-  y += DH + GAP;
-
-  // DECISION 2 — msg.error?
-  svg.appendChild(diamond(CX, y+DH/2, DW, DH, 'msg\n.error()?', C.green));
-  // YES → right
-  svg.appendChild(conn(`M ${CX+DW/2} ${y+DH/2} L ${RX-SBW} ${y+DH/2}`, C.red, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(RX-SBW,y+DH/2,'right',C.red));
-  svg.appendChild(tag(CX+DW/2+40, y+DH/2-16, 'YES', C.red));
-  svg.appendChild(sideBox(RX-SBW, y+DH/2, SBW, 66, 'log WARNING', ['skip msg','continue loop → poll()'], C.red));
-  // NO ↓
-  svg.appendChild(tag(CX+14, y+DH+8, 'NO', C.green));
-  svg.appendChild(conn(`M ${CX} ${y+DH} L ${CX} ${y+DH+GAP}`, C.green, {nDots:1,speed:1.4}));
-  svg.appendChild(arrow(CX,y+DH+GAP,'down',C.green));
-  y += DH + GAP;
-
-  // Timestamp Filter
-  const tsf = processBox(CX, y, BW, '🕐  PROCESS  ·  PHASE 1  —  TIMESTAMP WINDOW FILTER', 'Timestamp Filter', [
-    'ts ≤ 0 → skip invalid epoch',
-    'ts ≤ start_from_ms → skipped_old++ · log every 500',
-    'ts > t1_end_ms → STOP LOOP (exit condition)',
-    'Else → valid event → append to buffer'
-  ], C.green, [['kafka_timestamp',C.green]]);
-  svg.appendChild(tsf.node); y += tsf.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.green, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.green));
-  y += GAP;
-
-  // IO: Parse
-  svg.appendChild(ioBox(CX, y, BW+30, 62, '📥  Parse JSON  →  kafka_pending.append()', 'Extract: po_id · gstin · inv_date · inv_total · file_url · ts_ms', C.green));
-  y += 56;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.green, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.green));
-  y += GAP;
-
-  // DECISION 3 — buffer >= 100?
-  svg.appendChild(diamond(CX, y+DH/2, DW+30, DH, 'len(kafka_pending)\n≥ 100?', C.green));
-
-  // NO → right, loop back
-  const loopRightY = y+DH/2;
-  svg.appendChild(conn(`M ${CX+DW/2+15} ${loopRightY} L ${RX-SBW} ${loopRightY}`, C.slate, {nDots:1,speed:1.8,dashed:true}));
-  svg.appendChild(arrow(RX-SBW,loopRightY,'right',C.slate));
-  svg.appendChild(tag(CX+DW/2+55, loopRightY-16, 'NO', C.slate));
-  svg.appendChild(sideBox(RX-SBW, loopRightY, SBW, 60, '← poll next msg', ['loop back to','consumer.poll()'], C.slate));
-
-  // Loop-back line up the right rail
-  const loopRailX = RX-SBW+SBW+12;
-  const loopTopY = y - DH*4.2 - 30; // target the IO poll box
-  svg.appendChild(conn(
-    `M ${loopRailX} ${loopRightY} L ${loopRailX+50} ${loopRightY} L ${loopRailX+50} ${loopTopY} L ${CX+BW/2+20} ${loopTopY}`,
-    C.slate, {nDots:1, speed:3.5, dashed:true}
-  ));
-  svg.appendChild(arrow(CX+BW/2+20, loopTopY, 'left', C.slate));
-
-  // YES ↓
-  svg.appendChild(tag(CX+14, y+DH+8, 'YES', C.teal));
-  svg.appendChild(conn(`M ${CX} ${y+DH} L ${CX} ${y+DH+GAP+10}`, C.teal, {nDots:3,speed:1.3,label:'flush batch → process_kafka_batch()'}));
-  svg.appendChild(arrow(CX,y+DH+GAP+10,'down',C.teal));
-  y += DH + GAP + 10;
-  y += 18;
-  svg.appendChild(sectionLabel(CX, y-12, '✂  PHASE 1b  ·  BATCH PROCESSING  (100 msgs)', C.teal));
-  y += 14;
-
-  // Split box
-  const split = processBox(CX, y, BW, '✂️  PROCESS  ·  PHASE 1b  —  SPLIT ON po_id', 'process_kafka_batch() → split', [
-    'Partition: has_po_id list  vs  missing_po list',
-    'missing_po → _empty_row(PO_ID_MISSING_KAFKA) immediately',
-    'Zero MongoDB cost for missing po_id rows'
-  ], C.teal, []);
-  svg.appendChild(split.node);
-
-  // LEFT exit — MISSING_KAFKA
-  const misY = y + split.h/2;
-  svg.appendChild(conn(`M ${CX-BW/2} ${misY} L ${LX+SBW} ${misY}`, C.red, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(LX+SBW,misY,'left',C.red));
-  svg.appendChild(sideBox(LX, misY, SBW, 66, '⚠ MISSING_KAFKA', ['po_id absent from msg','→ empty BQ row'], C.red));
-
-  y += split.h;
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.teal, {nDots:2,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.teal));
-  y += GAP;
-
-  // LRU Cache
-  const lru = processBox(CX, y, BW, '💾  CACHE  ·  O(1) LRU  —  MongoCache', 'MongoCache._cache_lookup( po_id )', [
-    'OrderedDict LRU max=5,000 entries',
-    'HIT → move_to_end() O(1) → return cached doc',
-    'MISS → add to to_fetch[] for batch query',
-    'Caches None sentinel → prevents re-querying missing'
-  ], C.blue, []);
-  svg.appendChild(lru.node); y += lru.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.blue, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.teal));
-  y += GAP;
-
-  // MongoDB
-  const mdb = dbBox(CX, y, BW, '🗄  MONGODB  ·  ⚡ 1 QUERY / 100 MSGS', 'fetch_mongo_batch() — single $in query', [
-    'find({request_body.po_id:{$in:[...all_miss_ids]}}) · asyncio.to_thread',
-    'Project: request_body, response_body, created_at, _id',
-    'Was N separate find_one calls — now 1 round-trip'
-  ], C.teal);
-  svg.appendChild(mdb.node); y += mdb.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.teal, {nDots:2,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.teal));
-  y += GAP;
-
-  // build_bq_row
-  const bqr = processBox(CX, y, BW, '🏗  PROCESS  ·  SYNCHRONOUS  —  build_bq_row', 'build_bq_row() → determine_status()', [
-    'Compute time_diff_seconds = mongo_created_at − kafka_ts_ms',
-    'Determine one of 7 status values (see fan-out below)',
-    'vendor_type = None initially (stamped in Phase 2)'
-  ], C.teal, [['status',C.teal],['time_diff_seconds',C.teal],['batch_id',C.teal]]);
-  svg.appendChild(bqr.node); y += bqr.h;
-
-  // ── 7 STATUS FAN-OUT ──
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+20}`, C.teal, {nDots:1,speed:1.3}));
-  y += 20;
-  y += 14;
-  svg.appendChild(sectionLabel(CX, y-10, '↙  7 STATUS OUTCOMES  ↘', C.teal));
-  y += 14;
-
-  // Horizontal dispatch bus with animated sweep
-  const busY2 = y;
-  const busL = 55, busR = W-55;
-  // animated bus line
-  const busId = newPid();
-  svg.appendChild(el('path',{id:busId,d:`M ${busL} ${busY2} L ${busR} ${busY2}`,stroke:C.teal.stroke,'stroke-width':'2.5','stroke-dasharray':'8 4',opacity:'0.5'}));
-  // animated pulse along bus
-  for(let bi=0;bi<3;bi++){
-    const bd = el('circle',{r:'4',fill:C.teal.stroke,filter:`url(#gfp-teal)`});
-    const ba = el('animateMotion',{dur:'3s',repeatCount:'indefinite',begin:`${bi}s`});
-    ba.classList.add('flow-anim');
-    const bm = el('mpath',{'href':'#'+busId});
-    ba.appendChild(bm); bd.appendChild(ba);
-    svg.appendChild(bd);
-  }
-
-  // 7 outcome columns — evenly spaced
-  const outcomes2 = [
-    {label:'✅ MATCHED',       sub:['Date+total present','time_diff within SLA'],   color:C.green},
-    {label:'⚠ MONGO_EMPTY',   sub:['Doc found but all','critical fields blank'],    color:C.amber},
-    {label:'⚠ DATE_MISSING',  sub:['OCR failed to','extract invoice date'],         color:C.amber},
-    {label:'⚠ TOTAL_MISSING', sub:['OCR missed','invoice amount field'],            color:C.amber},
-    {label:'⏱ TIME_EXCEEDED', sub:['time_diff > threshold','SLA breach detected'],  color:C.purple},
-    {label:'❌ NOT_FOUND',    sub:['No MongoDB doc','→ triggers MySQL Phase 2'],     color:C.red},
-    {label:'⚠ PO_MISSING',   sub:['Kafka msg has','no po_id field at all'],         color:C.red},
-  ];
-    const nOut = outcomes2.length;
-  const outBW = 160, outH = 92, outDrop = 34;
-  const outSpan = busR - busL;
-  outcomes2.forEach((o,i)=>{
-    const ox = busL + (i+0.5)*(outSpan/nOut);
-    // vertical drop
-    svg.appendChild(conn(`M ${ox} ${busY2} L ${ox} ${busY2+outDrop}`, o.color, {nDots:1,speed:1.0+i*0.1}));
-    svg.appendChild(arrow(ox, busY2+outDrop, 'down', o.color));
-    // outcome box
-    const og = grp();
-    const obx = ox - outBW/2;
-    og.appendChild(el('rect',{x:obx,y:busY2+outDrop,width:outBW,height:outH,rx:9,fill:o.color.fill,stroke:o.color.stroke,'stroke-width':'1.6','stroke-dasharray':'5 3'}));
-    // top tint stripe
-    og.appendChild(el('rect',{x:obx,y:busY2+outDrop,width:outBW,height:20,rx:9,fill:o.color.stroke,opacity:'0.14'}));
-    og.appendChild(el('rect',{x:obx,y:busY2+outDrop+12,width:outBW,height:8,fill:o.color.stroke,opacity:'0.14'}));
-    og.appendChild(el('text',{x:ox,y:busY2+outDrop+16,'text-anchor':'middle','dominant-baseline':'middle',fill:o.color.text,'font-family':'Syne,sans-serif','font-size':'11','font-weight':'800'},o.label));
-    o.sub.forEach((s,si)=>{
-      og.appendChild(el('text',{x:ox,y:busY2+outDrop+38+si*18,'text-anchor':'middle',fill:'#8896b3','font-family':'IBM Plex Mono,monospace','font-size':'10'},s));
-    });
-    svg.appendChild(og);
-  });
-
-  y = busY2 + outDrop + outH + 28;
-
-  // Re-join bus
-  const rjY = y;
-  svg.appendChild(el('line',{x1:busL,y1:rjY,x2:busR,y2:rjY,stroke:'rgba(251,191,36,0.35)','stroke-width':'1.5','stroke-dasharray':'6 4'}));
-  svg.appendChild(el('text',{x:CX,y:rjY-10,'text-anchor':'middle',fill:'#5a6480','font-family':'IBM Plex Mono,monospace','font-size':'10','font-weight':'700'},'bq_pending >= 500  ->  classify_and_write()'));
-
-  svg.appendChild(conn(`M ${CX} ${rjY} L ${CX} ${rjY+GAP+8}`, C.amber, {nDots:3,speed:1.4}));
-  svg.appendChild(arrow(CX,rjY+GAP+8,'down',C.amber));
-  y = rjY + GAP + 8;
-  y += 18;
-  svg.appendChild(sectionLabel(CX, y-12, '🏷  PHASE 2  ·  VENDOR CLASSIFICATION', C.amber));
-  y += 14;
-
-  // classify_and_write
-  const caw = processBox(CX, y, BW, '✂️  PROCESS  ·  PHASE 2  —  VENDOR CLASSIFY', 'classify_and_write( batch ) → split', [
-    'legit_rows (status ≠ NOT_FOUND) → tagged Legit instantly',
-    'not_found_rows → GSTIN dedup + MySQL query',
-    'Zero MySQL cost for all matched / incomplete rows'
-  ], C.amber, []);
-  svg.appendChild(caw.node); y += caw.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.amber, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.amber));
-  y += GAP;
-
-  // DECISION 4 — NOT_FOUND?
-  svg.appendChild(diamond(CX, y+DH/2, DW+20, DH, 'status ==\nPO_ID_NOT_FOUND?', C.amber));
-  // NO → left: Legit
-  svg.appendChild(conn(`M ${CX-DW/2-10} ${y+DH/2} L ${LX+SBW} ${y+DH/2}`, C.green, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(LX+SBW,y+DH/2,'left',C.green));
-  svg.appendChild(tag(CX-DW/2-55, y+DH/2-16, 'NO', C.green));
-  svg.appendChild(sideBox(LX, y+DH/2, SBW, 72, '✅ vendor_type = Legit', ['OCR pipeline worked','no MySQL touch needed'], C.green));
-  // YES ↓
-  svg.appendChild(tag(CX+14, y+DH+8, 'YES', C.amber));
-  svg.appendChild(conn(`M ${CX} ${y+DH} L ${CX} ${y+DH+GAP}`, C.amber, {nDots:2,speed:1.4}));
-  svg.appendChild(arrow(CX,y+DH+GAP,'down',C.amber));
-  y += DH + GAP;
-
-  // MySQL
-  const mysql = dbBox(CX, y, BW, '🗃  MYSQL  ·  Dim_Sys_Plant  ·  ⚡ 1 QUERY / BATCH', 'Dedup GSTINs → Dim_Sys_Plant query', [
-    'Set comprehension on not_found_rows.final_gstin → dedup',
-    'SELECT DISTINCT WHERE GSTIN IN (%s)',
-    'AND Vertical NOT IN (ALL, ABFRL) AND Company_ID <> 1'
-  ], C.amber);
-  svg.appendChild(mysql.node); y += mysql.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.amber, {nDots:2,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.amber));
-  y += GAP;
-
-  // Stamp vendor_type
-  const stamp = processBox(CX, y, BW, '🏷️  PROCESS  —  STAMP vendor_type', 'row["vendor_type"] = ?', [
-    '≠ NOT_FOUND  →  Legit (OCR worked)',
-    'NOT_FOUND + GSTIN in manual_set  →  Manual (expected gap)',
-    'NOT_FOUND + not in set  →  Moglix (OCR gap to fix)',
-    'MySQL ERROR  →  fallback all → Moglix  (non-fatal)'
-  ], C.amber, [['✅ Legit',C.green],['📋 Manual',C.amber],['🔴 Moglix',C.red]]);
-  svg.appendChild(stamp.node);
-
-  // 3-way exits from stamp box
-  const stampMidY = y + stamp.h/2;
-  // Legit LEFT
-  svg.appendChild(conn(`M ${CX-BW/2} ${stampMidY-18} L ${LX+SBW} ${stampMidY-18}`, C.green, {nDots:1,speed:1.1,dashed:true}));
-  svg.appendChild(arrow(LX+SBW,stampMidY-18,'left',C.green));
-  svg.appendChild(sideBox(LX, stampMidY-18, SBW, 54, '✅ Legit', ['status ≠ NOT_FOUND'], C.green));
-  // Manual LEFT
-  svg.appendChild(conn(`M ${CX-BW/2} ${stampMidY+22} L ${LX+SBW} ${stampMidY+22}`, C.amber, {nDots:1,speed:1.1,dashed:true}));
-  svg.appendChild(arrow(LX+SBW,stampMidY+22,'left',C.amber));
-  svg.appendChild(sideBox(LX, stampMidY+22, SBW, 54, '📋 Manual', ['GSTIN in manual_set'], C.amber));
-  // Moglix RIGHT
-  svg.appendChild(conn(`M ${CX+BW/2} ${stampMidY} L ${RX-SBW} ${stampMidY}`, C.red, {nDots:1,speed:1.1,dashed:true}));
-  svg.appendChild(arrow(RX-SBW,stampMidY,'right',C.red));
-  svg.appendChild(sideBox(RX-SBW, stampMidY, SBW, 54, '🔴 Moglix', ['GSTIN not in manual_set'], C.red));
-
-  y += stamp.h;
-
-  // ── PHASE 3: BQ WRITE ──
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP+10}`, C.cyan, {nDots:3,speed:1.3,label:'all 25 fields ready → serialize → insert'}));
-  svg.appendChild(arrow(CX,y+GAP+10,'down',C.cyan));
-  y += GAP+10;
-  y += 18;
-  svg.appendChild(sectionLabel(CX, y-12, '☁  PHASE 3  ·  BIGQUERY STREAMING INSERT', C.cyan));
-  y += 14;
-
-  const ser = processBox(CX, y, BW, '🔄  PROCESS  ·  PHASE 3  —  SERIALIZE', 'serialize_for_json()', [
-    'datetime → ISO 8601 string · None → JSON null',
-    'Primitives pass-through · Dicts/lists recurse',
-    'Prepares complete BQ streaming insert payload'
-  ], C.cyan, []);
-  svg.appendChild(ser.node); y += ser.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.cyan, {nDots:2,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.cyan));
-  y += GAP;
-
-  // BQ Insert DB
-  const bqi = dbBox(CX, y, BW, '☁  BIGQUERY  ·  STREAMING INSERT  ·  asyncio.to_thread', 'insert_rows_json() — 500-row rolling batch', [
-    'BQ streaming → project.dataset.ocr_accuracy_results',
-    'Partitioned by processing_timestamp (DAY partition)',
-    '⚡ Rolling mid-pipeline → flat RAM at any daily volume',
-    'Errors: log + stats.errors+=N · non-fatal, continues'
-  ], C.cyan);
-  svg.appendChild(bqi.node);
-
-  // Error LEFT, Success RIGHT
-  const bqMidY = y + bqi.h/2;
-  svg.appendChild(conn(`M ${CX-BW/2} ${bqMidY} L ${LX+SBW} ${bqMidY}`, C.red, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(LX+SBW,bqMidY,'left',C.red));
-  svg.appendChild(sideBox(LX, bqMidY, SBW, 62, '⚠ Insert Error', ['log + stats.errors+=N','non-fatal, continues'], C.red));
-
-  svg.appendChild(conn(`M ${CX+BW/2} ${bqMidY} L ${RX-SBW} ${bqMidY}`, C.green, {nDots:1,speed:1.2,dashed:true}));
-  svg.appendChild(arrow(RX-SBW,bqMidY,'right',C.green));
-  svg.appendChild(sideBox(RX-SBW, bqMidY, SBW, 62, '✅ Batch Written', ['total_batches++','on_batch_written() hook'], C.green));
-
-  y += bqi.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.cyan, {nDots:2,speed:1.5}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.cyan));
-  y += GAP;
-
-  // Finalise
-  const fin = processBox(CX, y, BW, '🔚  PROCESS  ·  FINALISE', 'Drain + connections.close()', [
-    'on_batch_written() hook → override for Slack / metrics',
-    'Flush remaining kafka_pending + bq_pending buffers',
-    'stats.log_summary() → totals, cache ratio, vendor counts',
-    'finally block cleanly closes all 4 connections'
-  ], C.cyan, []);
-  svg.appendChild(fin.node); y += fin.h;
-
-  svg.appendChild(conn(`M ${CX} ${y} L ${CX} ${y+GAP}`, C.slate, {nDots:1,speed:2}));
-  svg.appendChild(arrow(CX,y+GAP,'down',C.slate));
-  y += GAP;
-
-  // END
-  svg.appendChild(terminal(CX, y+28, 440, 56, '✅  Pipeline Complete  ·  All connections closed', C.slate));
-  y += 60;
-
-  // Update viewBox to fit all content
-  svg.setAttribute('viewBox', `0 0 ${W} ${y+20}`);
-  svg.setAttribute('width', W);
-  svg.setAttribute('height', y+20);
-}
 
 // ── CSV streaming ──
 const STATUSES=['MATCHED','MATCHED','MATCHED','PO_ID_NOT_FOUND','INVOICE_DATE_MISSING','INVOICE_TOTAL_MISSING','TIME_BUFFER_EXCEEDED','MONGO_ALL_EMPTY'];
@@ -1465,7 +1501,7 @@ window.addEventListener('load',()=>{
   setTimeout(()=>{
     for(let i=0;i<5;i++){appendRow('dev-tbody','dev');appendRow('biz-tbody','biz');}
     drawWires();
-    drawFlowchart();
+    drawWires();
     setInterval(()=>appendRow('dev-tbody','dev'),2000);
     setInterval(()=>appendRow('biz-tbody','biz'),2400);
   },500);
